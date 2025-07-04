@@ -1,23 +1,69 @@
 'use client';
 
-import { Box, Container, Typography, TextField, Button, Link } from '@mui/material';
+import { useState } from 'react';
+import { Box, Container, Typography, TextField, Button, Link, Alert } from '@mui/material';
 import NextLink from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useMutation } from '@apollo/client';
+// Import the generated mutation document for login
+import { LoginDocument } from '@/graphql/generated/graphql';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    phoneNumber: '',
+    pin: '',
+  });
+  const [formError, setFormError] = useState('');
+
+  // Use the imported LoginDocument
+  const [login, { loading, error }] = useMutation(LoginDocument, {
+    onCompleted: (data) => {
+      // Upon successful mutation, securely handle the JWT
+      const token = data.login.token;
+      localStorage.setItem('authToken', token); // Persist the token
+      // After successful login, redirect the user to the /dashboard
+      router.push('/dashboard');
+    },
+    onError: (error) => {
+      setFormError(error.message);
+    }
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setFormError('');
+    if (!formData.phoneNumber || !formData.pin) {
+      setFormError('All fields are required.');
+      return;
+    }
+    // Execute the login mutation
+    await login({ variables: { ...formData } });
+  };
+
   return (
     <Container maxWidth="xs">
       <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Typography component="h1" variant="h5">
           Sign In
         </Typography>
-        <Box component="form" sx={{ mt: 1 }}>
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
           <TextField
             margin="normal"
             required
             fullWidth
             id="phone"
             label="Phone Number"
-            name="phone"
+            name="phoneNumber"
+            value={formData.phoneNumber}
+            onChange={handleChange}
             autoFocus
           />
           <TextField
@@ -28,14 +74,19 @@ export default function LoginPage() {
             label="PIN"
             type="password"
             id="pin"
+            value={formData.pin}
+            onChange={handleChange}
           />
+          {formError && <Alert severity="error" sx={{ mt: 2 }}>{formError}</Alert>}
+          {error && <Alert severity="error" sx={{ mt: 2 }}>{error.message}</Alert>}
           <Button
             type="submit"
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
+            disabled={loading}
           >
-            Sign In
+            {loading ? 'Signing In...' : 'Sign In'}
           </Button>
           <Link component={NextLink} href="/register" variant="body2" sx={{ textAlign: 'center', display: 'block' }}>
             {"Don't have an account? Register"}
