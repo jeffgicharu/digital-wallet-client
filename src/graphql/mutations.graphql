@@ -41,3 +41,23 @@ mutation TransferFunds($receiverPhoneNumber: String!, $amount: Float!) {
   }
 }
 
+# --- QUERIES ---
+
+query GetUser {
+  me {
+    id
+    username
+    phoneNumber
+    account {
+      id
+      balance
+      transactions {
+        id
+        amount
+        type
+        description
+        timestamp
+      }
+    }
+  }
+}
