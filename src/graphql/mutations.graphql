@@ -41,4 +41,3 @@ mutation TransferFunds($receiverPhoneNumber: String!, $amount: Float!) {
   }
 }
 
-
