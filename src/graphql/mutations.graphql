@@ -6,8 +6,8 @@ type AuthPayload {
 
 # --- MUTATIONS ---
 
-mutation RegisterUser($username: String!, $phoneNumber: String!) {
-  register(username: $username, phoneNumber: $phoneNumber) {
+mutation RegisterUser($username: String!, $phoneNumber: String!, $pin: String!) {
+  registerUser(username: $username, phoneNumber: $phoneNumber, pin: $pin) {
     token
     user {
       id
@@ -17,8 +17,8 @@ mutation RegisterUser($username: String!, $phoneNumber: String!) {
   }
 }
 
-mutation Login($phoneNumber: String!) {
-  login(phoneNumber: $phoneNumber) {
+mutation Login($phoneNumber: String!, $pin: String!) {
+  login(phoneNumber: $phoneNumber, pin: $pin) {
     token
     user {
       id
@@ -32,7 +32,7 @@ mutation Login($phoneNumber: String!) {
 }
 
 mutation TransferFunds($receiverPhoneNumber: String!, $amount: Float!) {
-  transfer(receiverPhoneNumber: $receiverPhoneNumber, amount: $amount) {
+  transferFunds(receiverPhoneNumber: $receiverPhoneNumber, amount: $amount) {
     id
     amount
     type
@@ -41,23 +41,4 @@ mutation TransferFunds($receiverPhoneNumber: String!, $amount: Float!) {
   }
 }
 
-# --- QUERIES ---
 
-query GetUser {
-  me {
-    id
-    username
-    phoneNumber
-    account {
-      id
-      balance
-      transactions {
-        id
-        amount
-        type
-        description
-        timestamp
-      }
-    }
-  }
-}
