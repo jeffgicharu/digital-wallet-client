@@ -1,6 +1,9 @@
-import { Box, Container, Typography, Paper } from '@mui/material';
+'use client';
 
-export default function DashboardPage() {
+import { Box, Container, Typography, Paper } from '@mui/material';
+import withAuth from '@/components/withAuth'; // Import our HOC
+
+function DashboardPage() {
   return (
     <Container maxWidth="lg">
       <Box sx={{ my: 4 }}>
@@ -15,3 +18,6 @@ export default function DashboardPage() {
     </Container>
   );
 }
+
+// Wrap the component with the HOC before exporting
+export default withAuth(DashboardPage);

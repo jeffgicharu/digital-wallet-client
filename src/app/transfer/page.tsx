@@ -1,6 +1,9 @@
-import { Box, Container, Typography, TextField, Button } from '@mui/material';
+'use client';
 
-export default function TransferPage() {
+import { Box, Container, Typography, TextField, Button } from '@mui/material';
+import withAuth from '@/components/withAuth'; // Import our HOC
+
+function TransferPage() {
   return (
     <Container maxWidth="sm">
       <Box sx={{ my: 4 }}>
@@ -38,3 +41,6 @@ export default function TransferPage() {
     </Container>
   );
 }
+
+// Wrap the component with the HOC before exporting
+export default withAuth(TransferPage);
