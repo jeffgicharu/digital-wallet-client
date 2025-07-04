@@ -31,8 +31,8 @@ mutation Login($phoneNumber: String!, $pin: String!) {
   }
 }
 
-mutation TransferFunds($receiverPhoneNumber: String!, $amount: Float!) {
-  transferFunds(receiverPhoneNumber: $receiverPhoneNumber, amount: $amount) {
+mutation TransferFunds($receiverPhone: String!, $transferAmount: Float!) {
+  transferFunds(receiverPhoneNumber: $receiverPhone, amount: $transferAmount) {
     id
     amount
     type
@@ -43,7 +43,7 @@ mutation TransferFunds($receiverPhoneNumber: String!, $amount: Float!) {
 
 # --- QUERIES ---
 
-query GetUser {
+query GetMyProfile {
   me {
     id
     username
