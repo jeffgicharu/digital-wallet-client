@@ -1,0 +1,63 @@
+# Represents the data returned after a successful authentication
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
+# --- MUTATIONS ---
+
+mutation RegisterUser($username: String!, $phoneNumber: String!) {
+  register(username: $username, phoneNumber: $phoneNumber) {
+    token
+    user {
+      id
+      username
+      phoneNumber
+    }
+  }
+}
+
+mutation Login($phoneNumber: String!) {
+  login(phoneNumber: $phoneNumber) {
+    token
+    user {
+      id
+      username
+      account {
+        id
+        balance
+      }
+    }
+  }
+}
+
+mutation TransferFunds($receiverPhoneNumber: String!, $amount: Float!) {
+  transfer(receiverPhoneNumber: $receiverPhoneNumber, amount: $amount) {
+    id
+    amount
+    type
+    description
+    timestamp
+  }
+}
+
+# --- QUERIES ---
+
+query GetUser {
+  me {
+    id
+    username
+    phoneNumber
+    account {
+      id
+      balance
+      transactions {
+        id
+        amount
+        type
+        description
+        timestamp
+      }
+    }
+  }
+}
