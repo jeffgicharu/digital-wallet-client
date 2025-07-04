@@ -4,21 +4,9 @@ import { useState } from 'react';
 import { Box, Container, Typography, TextField, Button, Link, Alert } from '@mui/material';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { gql } from '@/graphql/generated';
 import { useMutation } from '@apollo/client';
-
-// We use the 'gql' function from our generated types to reference the mutation
-const REGISTER_USER_MUTATION = gql(`
-  mutation RegisterUser($username: String!, $phoneNumber: String!, $pin: String!) {
-    register(username: $username, phoneNumber: $phoneNumber, pin: $pin) {
-      token
-      user {
-        id
-        username
-      }
-    }
-  }
-`);
+// Import the generated mutation document directly
+import { RegisterUserDocument } from '@/graphql/generated/graphql';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -29,12 +17,13 @@ export default function RegisterPage() {
   });
   const [formError, setFormError] = useState('');
 
-  const [registerUser, { loading, error }] = useMutation(REGISTER_USER_MUTATION, {
+  // Use the imported RegisterUserDocument directly
+  const [registerUser, { loading, error }] = useMutation(RegisterUserDocument, {
     onCompleted: (data) => {
-      // Upon successful mutation, securely handle the JWT 
-      const token = data.register.token;
-      localStorage.setItem('authToken', token); // Persist the token 
-      // After successful registration, redirect the user to the /dashboard 
+      // Upon successful mutation, securely handle the JWT
+      const token = data.registerUser.token;
+      localStorage.setItem('authToken', token); // Persist the token
+      // After successful registration, redirect the user to the /dashboard
       router.push('/dashboard');
     },
     onError: (error) => {
@@ -56,7 +45,7 @@ export default function RegisterPage() {
       setFormError('All fields are required.');
       return;
     }
-    // Use the useMutation hook to execute the registerUser mutation 
+    // Use the useMutation hook to execute the registerUser mutation
     await registerUser({ variables: { ...formData } });
   };
 
