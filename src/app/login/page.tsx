@@ -23,9 +23,6 @@ export default function LoginPage() {
       await client.resetStore(); // Reset cache to refetch queries with new token
       router.push('/dashboard');
     },
-    onError: (error) => {
-      setFormError(error.message);
-    }
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
