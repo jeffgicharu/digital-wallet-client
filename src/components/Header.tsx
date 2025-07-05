@@ -25,7 +25,7 @@ export default function Header() {
         
         {loading && <CircularProgress color="inherit" size={24} />}
         
-        {error && <Typography color="error" variant="body2">Couldn't load data</Typography>}
+        {error && <Typography color="error" variant="body2">Couldn&apos;t load data</Typography>}
         
         {data?.me && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>

@@ -9,13 +9,18 @@ const config: CodegenConfig = {
 
   // Where to output the generated files
   generates: {
-    './src/graphql/generated/': {
-      preset: 'client',
-      plugins: [],
-      presetConfig: {
-        gqlTagName: 'gql',
-      }
-    }
+    './src/graphql/generated/graphql.ts': {
+      plugins: [
+        'typescript',
+        'typescript-operations',
+        'typescript-react-apollo',
+      ],
+      config: {
+        withHooks: true,
+        withComponent: false,
+        withHOC: false,
+      },
+    },
   },
   ignoreNoDocuments: true,
 };

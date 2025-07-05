@@ -10,7 +10,7 @@ import { useAuth } from '@/hooks/useAuth'; // Import the useAuth hook
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { login } = useAuth(); // Get the login function from our context
+  const { setToken } = useAuth(); // Get the setToken function from our context
   const [formData, setFormData] = useState({
     username: '',
     phoneNumber: '',
@@ -21,7 +21,7 @@ export default function RegisterPage() {
   const [registerUser, { loading, error }] = useMutation(RegisterUserDocument, {
     onCompleted: (data) => {
       // Use the login function from the context to set the token
-      login(data.registerUser.token);
+      setToken(data.registerUser.token);
       router.push('/dashboard');
     },
     onError: (error) => {
