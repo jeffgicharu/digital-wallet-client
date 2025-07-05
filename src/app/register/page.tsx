@@ -4,14 +4,13 @@ import { useState } from 'react';
 import { Box, Container, Typography, TextField, Button, Link, Alert } from '@mui/material';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth.tsx';
 import { useMutation } from '@apollo/client';
-// Import the generated mutation document directly
 import { RegisterUserDocument } from '@/graphql/generated/graphql';
+import { useAuth } from '@/hooks/useAuth'; // Import the useAuth hook
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { setToken } = useAuth();
+  const { login } = useAuth(); // Get the login function from our context
   const [formData, setFormData] = useState({
     username: '',
     phoneNumber: '',
@@ -19,13 +18,10 @@ export default function RegisterPage() {
   });
   const [formError, setFormError] = useState('');
 
-  // Use the imported RegisterUserDocument directly
   const [registerUser, { loading, error }] = useMutation(RegisterUserDocument, {
     onCompleted: (data) => {
-      // Upon successful mutation, securely handle the JWT
-      const token = data.registerUser.token;
-      setToken(token);
-      // Now navigate
+      // Use the login function from the context to set the token
+      login(data.register.token);
       router.push('/dashboard');
     },
     onError: (error) => {
@@ -47,7 +43,6 @@ export default function RegisterPage() {
       setFormError('All fields are required.');
       return;
     }
-    // Use the useMutation hook to execute the registerUser mutation
     await registerUser({ variables: { ...formData } });
   };
 

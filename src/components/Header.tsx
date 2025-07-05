@@ -1,19 +1,18 @@
 'use client';
 
 import { AppBar, Toolbar, Typography, Button, Box, CircularProgress } from '@mui/material';
-import { useAuth } from '@/hooks/useAuth.tsx';
 import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/navigation';
 import { GetMyProfileDocument } from '@/graphql/generated/graphql';
+import { useAuth } from '@/hooks/useAuth'; // Import the useAuth hook
 
 export default function Header() {
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout } = useAuth(); // Get the logout function from context
   const { data, loading, error } = useQuery(GetMyProfileDocument);
 
   const handleLogout = () => {
-    logout();
-    // We use router.replace to prevent the user from going "back" to a protected route
+    logout(); // Use the context's logout function
     router.replace('/login');
   };
 
@@ -24,13 +23,10 @@ export default function Header() {
           Digital Wallet
         </Typography>
         
-        {/* Handle Loading State */}
         {loading && <CircularProgress color="inherit" size={24} />}
         
-        {/* Handle Error State */}
         {error && <Typography color="error" variant="body2">Couldn't load data</Typography>}
         
-        {/* Handle Success State */}
         {data?.me && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
             <Typography>

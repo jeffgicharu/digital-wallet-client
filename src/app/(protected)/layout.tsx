@@ -3,8 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
-import { Box, CircularProgress } from '@mui/material';
-import { useAuth } from '@/hooks/useAuth.tsx';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ProtectedLayout({
   children,
@@ -15,19 +14,18 @@ export default function ProtectedLayout({
   const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
+    // Wait until the auth state is determined
     if (!isLoading && !isAuthenticated) {
       router.replace('/login');
     }
   }, [isLoading, isAuthenticated, router]);
 
+  // While checking auth, show nothing to prevent flashes of content
   if (isLoading || !isAuthenticated) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <CircularProgress />
-      </Box>
-    );
+    return null;
   }
 
+  // If authenticated, show the header and page content
   return (
     <>
       <Header />
