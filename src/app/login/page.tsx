@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Box, Container, Typography, TextField, Button, Link, Alert } from '@mui/material';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth.tsx';
 import { useMutation } from '@apollo/client';
 // Import the generated mutation document for login
 import { LoginDocument } from '@/graphql/generated/graphql';

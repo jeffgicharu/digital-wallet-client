@@ -1,7 +1,7 @@
 'use client';
 
 import { AppBar, Toolbar, Typography, Button, Box, CircularProgress } from '@mui/material';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth.tsx';
 import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/navigation';
 import { GetMyProfileDocument } from '@/graphql/generated/graphql';
