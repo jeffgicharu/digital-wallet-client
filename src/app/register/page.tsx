@@ -21,7 +21,7 @@ export default function RegisterPage() {
   const [registerUser, { loading, error }] = useMutation(RegisterUserDocument, {
     onCompleted: (data) => {
       // Use the login function from the context to set the token
-      login(data.register.token);
+      login(data.registerUser.token);
       router.push('/dashboard');
     },
     onError: (error) => {
