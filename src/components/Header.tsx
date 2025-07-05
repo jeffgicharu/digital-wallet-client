@@ -1,20 +1,20 @@
 'use client';
 
 import { AppBar, Toolbar, Typography, Button, Box, CircularProgress } from '@mui/material';
+import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/navigation';
 import { GetMyProfileDocument } from '@/graphql/generated/graphql';
 
 export default function Header() {
   const router = useRouter();
+  const { logout } = useAuth();
   const { data, loading, error } = useQuery(GetMyProfileDocument);
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
+    logout();
     // We use router.replace to prevent the user from going "back" to a protected route
     router.replace('/login');
-    // A full page reload can also help ensure all cached data is cleared
-    window.location.reload();
   };
 
   return (

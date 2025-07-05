@@ -4,13 +4,14 @@ import { useState } from 'react';
 import { Box, Container, Typography, TextField, Button, Link, Alert } from '@mui/material';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 import { useMutation } from '@apollo/client';
-import client from '@/lib/apolloClient';
 // Import the generated mutation document directly
-import { RegisterUserDocument, GetMyProfileDocument } from '@/graphql/generated/graphql';
+import { RegisterUserDocument } from '@/graphql/generated/graphql';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { setToken } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     phoneNumber: '',
@@ -20,14 +21,10 @@ export default function RegisterPage() {
 
   // Use the imported RegisterUserDocument directly
   const [registerUser, { loading, error }] = useMutation(RegisterUserDocument, {
-    onCompleted: async (data) => {
+    onCompleted: (data) => {
       // Upon successful mutation, securely handle the JWT
       const token = data.registerUser.token;
-      localStorage.setItem('authToken', token); // Persist the token
-      
-      // Reset Apollo Client cache and refetch queries
-      await client.resetStore();
-
+      setToken(token);
       // Now navigate
       router.push('/dashboard');
     },
