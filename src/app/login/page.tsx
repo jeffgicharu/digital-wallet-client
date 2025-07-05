@@ -5,6 +5,7 @@ import { Box, Container, Typography, TextField, Button, Link, Alert } from '@mui
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@apollo/client';
+import client from '@/lib/apolloClient';
 // Import the generated mutation document for login
 import { LoginDocument } from '@/graphql/generated/graphql';
 
@@ -18,12 +19,16 @@ export default function LoginPage() {
 
   // Use the imported LoginDocument
   const [login, { loading, error }] = useMutation(LoginDocument, {
-    onCompleted: (data) => {
+    onCompleted: async (data) => {
       // Upon successful mutation, securely handle the JWT
       const token = data.login.token;
       localStorage.setItem('authToken', token); // Persist the token
-      // Force a full reload on the new page
-      window.location.href = '/dashboard';
+      
+      // Reset Apollo Client cache and refetch queries
+      await client.resetStore();
+
+      // Now navigate
+      router.push('/dashboard');
     },
     onError: (error) => {
       setFormError(error.message);
