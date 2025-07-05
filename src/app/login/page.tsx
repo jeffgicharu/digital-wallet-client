@@ -17,10 +17,10 @@ export default function LoginPage() {
   });
   const [formError, setFormError] = useState('');
 
-  const [loginUser, { loading, error }] = useMutation(LoginDocument, {
-    onCompleted: (data) => {
-      // Use the login function from the context to set the token
+  const [loginUser, { loading, error, client }] = useMutation(LoginDocument, {
+    onCompleted: async (data) => {
       setToken(data.login.token);
+      await client.resetStore(); // Reset cache to refetch queries with new token
       router.push('/dashboard');
     },
     onError: (error) => {

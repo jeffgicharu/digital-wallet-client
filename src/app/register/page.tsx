@@ -18,10 +18,10 @@ export default function RegisterPage() {
   });
   const [formError, setFormError] = useState('');
 
-  const [registerUser, { loading, error }] = useMutation(RegisterUserDocument, {
-    onCompleted: (data) => {
-      // Use the login function from the context to set the token
+  const [registerUser, { loading, error, client }] = useMutation(RegisterUserDocument, {
+    onCompleted: async (data) => {
       setToken(data.registerUser.token);
+      await client.resetStore(); // Reset cache to refetch queries with new token
       router.push('/dashboard');
     },
     onError: (error) => {
