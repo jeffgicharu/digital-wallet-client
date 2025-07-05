@@ -22,8 +22,8 @@ export default function LoginPage() {
       // Upon successful mutation, securely handle the JWT
       const token = data.login.token;
       localStorage.setItem('authToken', token); // Persist the token
-      // After successful login, redirect the user to the /dashboard
-      router.push('/dashboard');
+      // Force a full reload on the new page
+      window.location.href = '/dashboard';
     },
     onError: (error) => {
       setFormError(error.message);
