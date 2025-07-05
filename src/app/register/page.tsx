@@ -6,7 +6,7 @@ import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@apollo/client';
 // Import the generated mutation document directly
-import { RegisterUserDocument } from '@/graphql/generated/graphql';
+import { RegisterUserDocument, GetMyProfileDocument } from '@/graphql/generated/graphql';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -19,6 +19,7 @@ export default function RegisterPage() {
 
   // Use the imported RegisterUserDocument directly
   const [registerUser, { loading, error }] = useMutation(RegisterUserDocument, {
+    refetchQueries: [{ query: GetMyProfileDocument }],
     onCompleted: (data) => {
       // Upon successful mutation, securely handle the JWT
       const token = data.registerUser.token;
