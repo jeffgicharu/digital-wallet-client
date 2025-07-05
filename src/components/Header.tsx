@@ -3,11 +3,11 @@
 import { AppBar, Toolbar, Typography, Button, Box, CircularProgress } from '@mui/material';
 import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/navigation';
-import { GetUserDocument } from '@/graphql/generated/graphql';
+import { GetMyProfileDocument } from '@/graphql/generated/graphql';
 
 export default function Header() {
   const router = useRouter();
-  const { data, loading, error } = useQuery(GetUserDocument);
+  const { data, loading, error } = useQuery(GetMyProfileDocument);
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
