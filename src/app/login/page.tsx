@@ -18,7 +18,7 @@ export default function LoginPage() {
   });
   const [formError, setFormError] = useState('');
 
-  const [loginUser, { loading, error, client }] = useMutation(LoginDocument, {
+  const [loginUser, { loading, client }] = useMutation(LoginDocument, {
     onCompleted: async (data) => {
       setToken(data.login.token);
       await client.resetStore(); // Reset cache to refetch queries with new token

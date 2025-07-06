@@ -19,7 +19,7 @@ export default function RegisterPage() {
   });
   const [formError, setFormError] = useState('');
 
-  const [registerUser, { loading, error, client }] = useMutation(RegisterUserDocument, {
+  const [registerUser, { loading, client }] = useMutation(RegisterUserDocument, {
     onCompleted: async (data) => {
       setToken(data.registerUser.token);
       await client.resetStore(); // Reset cache to refetch queries with new token

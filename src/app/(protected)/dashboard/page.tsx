@@ -2,7 +2,7 @@
 
 import { Box, Container, Typography, Paper, CircularProgress, Alert, List, ListItem, ListItemText, Divider } from '@mui/material';
 import { useQuery } from '@apollo/client';
-import { GetMyProfileDocument } from '@/graphql/generated/graphql';
+import { GetMyProfileDocument, Transaction } from '@/graphql/generated/graphql';
 
 export default function DashboardPage() {
   const { data, loading, error } = useQuery(GetMyProfileDocument);
@@ -30,7 +30,7 @@ export default function DashboardPage() {
         <Paper sx={{ p: 2 }}>
           {me.account.transactions.length > 0 ? (
             <List>
-              {me.account.transactions.map((tx, index) => (
+              {me.account.transactions.map((tx: Transaction, index: number) => (
                 <div key={tx.id}>
                   <ListItem>
                     <ListItemText
