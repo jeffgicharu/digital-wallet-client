@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, createContext, useContext } from 'react';
+import { useLazyQuery } from '@apollo/client';
+import { GetMyProfileDocument } from '@/graphql/generated/graphql';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -24,11 +26,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setTokenState] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [getProfile, { error }] = useLazyQuery(GetMyProfileDocument, {
+    fetchPolicy: 'network-only', // Always fetch from the network
+    onCompleted: () => {
+      // If the query succeeds, the token is valid.
+      setIsLoading(false);
+    },
+    onError: () => {
+      // If the query fails, the token is invalid.
+      logout();
+      setIsLoading(false);
+    },
+  });
+
   useEffect(() => {
     const storedToken = localStorage.getItem('authToken');
-    setTokenState(storedToken);
-    setIsLoading(false);
-  }, []);
+    if (storedToken) {
+      setTokenState(storedToken);
+      getProfile(); // Validate the token with the backend
+    } else {
+      setIsLoading(false); // No token, not loading
+    }
+  }, [getProfile]);
 
   const setToken = (newToken: string) => {
     localStorage.setItem('authToken', newToken);
@@ -42,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={{
-      isAuthenticated: !!token,
+      isAuthenticated: !!token && !error,
       isLoading,
       token,
       setToken,

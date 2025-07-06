@@ -21,9 +21,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <ThemeRegistry>
-          <AuthProvider>
-            <ApolloProviderWrapper>{children}</ApolloProviderWrapper>
-          </AuthProvider>
+          <ApolloProviderWrapper>
+            <AuthProvider>{children}</AuthProvider>
+          </ApolloProviderWrapper>
         </ThemeRegistry>
       </body>
     </html>

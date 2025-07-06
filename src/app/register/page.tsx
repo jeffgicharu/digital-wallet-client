@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useMutation } from '@apollo/client';
 import { RegisterUserDocument } from '@/graphql/generated/graphql';
 import { useAuth } from '@/hooks/useAuth'; // Import the useAuth hook
+import PhoneNumberInput from '@/components/PhoneNumberInput';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -24,6 +25,15 @@ export default function RegisterPage() {
       await client.resetStore(); // Reset cache to refetch queries with new token
       router.push('/dashboard');
     },
+    onError: (error) => {
+      if (error.graphQLErrors.length > 0) {
+        setFormError(error.graphQLErrors[0].message);
+      } else if (error.networkError) {
+        setFormError('Network error: Please check your connection.');
+      } else {
+        setFormError('An unexpected error occurred.');
+      }
+    },
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,7 +50,9 @@ export default function RegisterPage() {
       setFormError('All fields are required.');
       return;
     }
-    await registerUser({ variables: { ...formData } });
+    // Remove hyphens from phone number before sending to the backend
+    const cleanedPhoneNumber = formData.phoneNumber.replace(/-/g, '');
+    await registerUser({ variables: { ...formData, phoneNumber: cleanedPhoneNumber } });
   };
 
   return (
@@ -61,12 +73,12 @@ export default function RegisterPage() {
             onChange={handleChange}
             autoFocus
           />
-          <TextField
+          <PhoneNumberInput
             margin="normal"
             required
             fullWidth
             id="phone"
-            label="Phone Number"
+            label="Phone Number (e.g., 254-7XX-XXX-XXX)"
             name="phoneNumber"
             value={formData.phoneNumber}
             onChange={handleChange}
@@ -83,7 +95,6 @@ export default function RegisterPage() {
             onChange={handleChange}
           />
           {formError && <Alert severity="error" sx={{ mt: 2 }}>{formError}</Alert>}
-          {error && <Alert severity="error" sx={{ mt: 2 }}>{error.message}</Alert>}
           <Button
             type="submit"
             fullWidth

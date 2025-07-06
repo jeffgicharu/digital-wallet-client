@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Box, Container, Typography, TextField, Button, Alert, CircularProgress } from '@mui/material';
 import { useMutation } from '@apollo/client';
 import { TransferFundsDocument } from '@/graphql/generated/graphql';
+import PhoneNumberInput from '@/components/PhoneNumberInput';
 
 export default function TransferPage() {
   const [formData, setFormData] = useState({
@@ -29,7 +30,11 @@ export default function TransferPage() {
       setFormData({ receiverPhoneNumber: '', amount: '' }); // Clear the form
     },
     onError: (error) => {
-      setStatusMessage({ type: 'error', message: `Transfer failed: ${error.message}` });
+      if (error.graphQLErrors.length > 0) {
+        setStatusMessage({ type: 'error', message: error.graphQLErrors[0].message });
+      } else {
+        setStatusMessage({ type: 'error', message: `Transfer failed: ${error.message}` });
+      }
     },
   });
 
@@ -46,14 +51,21 @@ export default function TransferPage() {
     setStatusMessage(null);
     
     const amount = parseFloat(formData.amount);
-    if (!formData.receiverPhoneNumber || !amount || amount <= 0) {
-      setStatusMessage({ type: 'error', message: 'Please enter a valid phone number and positive amount.' });
+    if (!formData.receiverPhoneNumber) {
+      setStatusMessage({ type: 'error', message: 'Please enter a recipient phone number.' });
+      return;
+    }
+    if (!amount || amount <= 0) {
+      setStatusMessage({ type: 'error', message: 'Please enter a positive amount to transfer.' });
       return;
     }
 
+    // Remove hyphens from phone number before sending to the backend
+    const cleanedPhoneNumber = formData.receiverPhoneNumber.replace(/-/g, '');
+
     await transferFunds({
       variables: {
-        receiverPhoneNumber: formData.receiverPhoneNumber,
+        receiverPhoneNumber: cleanedPhoneNumber,
         amount: amount,
       },
     });
@@ -66,12 +78,12 @@ export default function TransferPage() {
           Send Money
         </Typography>
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-          <TextField
+          <PhoneNumberInput
             margin="normal"
             required
             fullWidth
             id="recipient"
-            label="Recipient's Phone Number"
+            label="Recipient's Phone Number (e.g., 254-7XX-XXX-XXX)"
             name="receiverPhoneNumber"
             value={formData.receiverPhoneNumber}
             onChange={handleChange}

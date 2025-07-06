@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useMutation } from '@apollo/client';
 import { LoginDocument } from '@/graphql/generated/graphql';
 import { useAuth } from '@/hooks/useAuth'; // Import the useAuth hook
+import PhoneNumberInput from '@/components/PhoneNumberInput';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -22,6 +23,19 @@ export default function LoginPage() {
       setToken(data.login.token);
       await client.resetStore(); // Reset cache to refetch queries with new token
       router.push('/dashboard');
+    },
+    onError: (error) => {
+      // Log the error to the console for debugging
+      console.error("Login failed:", error);
+
+      // Optionally, you can set a more specific error message based on the error type
+      if (error.graphQLErrors.length > 0) {
+        setFormError(error.graphQLErrors[0].message);
+      } else if (error.networkError) {
+        setFormError('Network error: Please check your connection.');
+      } else {
+        setFormError('An unexpected error occurred.');
+      }
     },
   });
 
@@ -39,7 +53,9 @@ export default function LoginPage() {
       setFormError('All fields are required.');
       return;
     }
-    await loginUser({ variables: { ...formData } });
+    // Remove hyphens from phone number before sending to the backend
+    const cleanedPhoneNumber = formData.phoneNumber.replace(/-/g, '');
+    await loginUser({ variables: { ...formData, phoneNumber: cleanedPhoneNumber } });
   };
 
   return (
@@ -49,12 +65,12 @@ export default function LoginPage() {
           Sign In
         </Typography>
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-          <TextField
+          <PhoneNumberInput
             margin="normal"
             required
             fullWidth
             id="phone"
-            label="Phone Number"
+            label="Phone Number (e.g., 254-7XX-XXX-XXX)"
             name="phoneNumber"
             value={formData.phoneNumber}
             onChange={handleChange}
@@ -72,7 +88,6 @@ export default function LoginPage() {
             onChange={handleChange}
           />
           {formError && <Alert severity="error" sx={{ mt: 2 }}>{formError}</Alert>}
-          {error && <Alert severity="error" sx={{ mt: 2 }}>{error.message}</Alert>}
           <Button
             type="submit"
             fullWidth
