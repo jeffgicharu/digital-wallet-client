@@ -6,23 +6,36 @@ import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@apollo/client';
 import { RegisterUserDocument } from '@/graphql/generated/graphql';
-import { useAuth } from '@/hooks/useAuth'; // Import the useAuth hook
+import { useAuth } from '@/hooks/useAuth';
 import PhoneNumberInput from '@/components/PhoneNumberInput';
+import * as Yup from 'yup';
+import 'yup-phone-lite';
+
+const validationSchema = Yup.object().shape({
+  username: Yup.string().required('Username is required'),
+  phoneNumber: Yup.string()
+    .phone('KE', 'Invalid Kenyan phone number')
+    .required('Phone number is required'),
+  pin: Yup.string()
+    .required('PIN is required')
+    .matches(/^[0-9]{4}$/, 'PIN must be a 4-digit number'),
+});
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { setToken } = useAuth(); // Get the setToken function from our context
+  const { setToken } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
     phoneNumber: '',
     pin: '',
   });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formError, setFormError] = useState('');
 
   const [registerUser, { loading, client }] = useMutation(RegisterUserDocument, {
     onCompleted: async (data) => {
       setToken(data.registerUser.token);
-      await client.resetStore(); // Reset cache to refetch queries with new token
+      await client.resetStore();
       router.push('/dashboard');
     },
     onError: (error) => {
@@ -46,13 +59,23 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormError('');
-    if (!formData.username || !formData.phoneNumber || !formData.pin) {
-      setFormError('All fields are required.');
-      return;
+    setErrors({});
+
+    try {
+      await validationSchema.validate(formData, { abortEarly: false });
+      const cleanedPhoneNumber = formData.phoneNumber.replace(/-/g, '');
+      await registerUser({ variables: { ...formData, phoneNumber: cleanedPhoneNumber } });
+    } catch (err) {
+      if (err instanceof Yup.ValidationError) {
+        const newErrors: { [key: string]: string } = {};
+        err.inner.forEach((error) => {
+          if (error.path) {
+            newErrors[error.path] = error.message;
+          }
+        });
+        setErrors(newErrors);
+      }
     }
-    // Remove hyphens from phone number before sending to the backend
-    const cleanedPhoneNumber = formData.phoneNumber.replace(/-/g, '');
-    await registerUser({ variables: { ...formData, phoneNumber: cleanedPhoneNumber } });
   };
 
   return (
@@ -61,7 +84,7 @@ export default function RegisterPage() {
         <Typography component="h1" variant="h5">
           Create Account
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
           <TextField
             margin="normal"
             required
@@ -71,6 +94,8 @@ export default function RegisterPage() {
             name="username"
             value={formData.username}
             onChange={handleChange}
+            error={!!errors.username}
+            helperText={errors.username}
             autoFocus
           />
           <PhoneNumberInput
@@ -82,6 +107,8 @@ export default function RegisterPage() {
             name="phoneNumber"
             value={formData.phoneNumber}
             onChange={handleChange}
+            error={!!errors.phoneNumber}
+            helperText={errors.phoneNumber}
           />
           <TextField
             margin="normal"
@@ -93,6 +120,8 @@ export default function RegisterPage() {
             id="pin"
             value={formData.pin}
             onChange={handleChange}
+            error={!!errors.pin}
+            helperText={errors.pin}
           />
           {formError && <Alert severity="error" sx={{ mt: 2 }}>{formError}</Alert>}
           <Button
@@ -105,7 +134,7 @@ export default function RegisterPage() {
             {loading ? 'Registering...' : 'Register'}
           </Button>
           <Link component={NextLink} href="/login" variant="body2" sx={{ textAlign: 'center', display: 'block' }}>
-            {"Already have an account? Sign In"}
+            {'Already have an account? Sign In'}
           </Link>
         </Box>
       </Box>
